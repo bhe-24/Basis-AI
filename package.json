@@ -1,0 +1,8 @@
+{
+  "name": "proyek-ai-saya",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@google/generative-ai": "^0.1.3"
+  }
+}

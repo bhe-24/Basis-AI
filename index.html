@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat AI Sederhana</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
+        textarea { width: 100%; height: 100px; margin-bottom: 10px; }
+        button { padding: 10px 20px; background: #0070f3; color: white; border: none; cursor: pointer; }
+        #hasil { background: #f4f4f4; padding: 15px; margin-top: 20px; border-radius: 5px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Tanya Gemini AI</h1>
+    <p>Masukkan pertanyaanmu di bawah ini:</p>
+    
+    <textarea id="inputUser" placeholder="Misal: Buatkan puisi tentang hujan..."></textarea>
+    <br>
+    <button onclick="kirimPesan()">Kirim Pertanyaan</button>
+    
+    <div id="hasil">Jawaban akan muncul di sini...</div>
+
+    <script>
+        async function kirimPesan() {
+            const input = document.getElementById('inputUser').value;
+            const hasilDiv = document.getElementById('hasil');
+            
+            if (!input) { alert("Tulis sesuatu dulu dong!"); return; }
+
+            hasilDiv.innerText = "Sedang berpikir...";
+
+            try {
+                // Ini kuncinya: Kita panggil 'Dapur' (Backend) kita sendiri
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: input })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    hasilDiv.innerText = "Error: " + data.error;
+                } else {
+                    hasilDiv.innerText = data.answer;
+                }
+            } catch (err) {
+                hasilDiv.innerText = "Gagal terhubung: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
