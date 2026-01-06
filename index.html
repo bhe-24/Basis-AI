@@ -23,13 +23,10 @@
             font-family: 'Lato', sans-serif;
         }
 
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-        }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
 
         .text-navy { color: var(--color-navy); }
         .bg-navy { background-color: var(--color-navy); }
-        
         .text-mustard { color: #d4a000; }
         .bg-mustard { background-color: var(--color-mustard); }
         .bg-mustard-hover:hover { background-color: var(--color-mustard-dark); }
@@ -40,11 +37,11 @@
         ::-webkit-scrollbar-thumb { background: #d4a000; border-radius: 4px; }
 
         .loader {
-            border: 4px solid #f3f3f3;
+            border: 3px solid #f3f3f3;
             border-radius: 50%;
-            border-top: 4px solid var(--color-mustard-dark);
-            width: 24px;
-            height: 24px;
+            border-top: 3px solid var(--color-mustard-dark);
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
         }
 
@@ -56,7 +53,7 @@
         .modal {
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: all 0.3s ease;
         }
         .modal.active {
             opacity: 1;
@@ -73,7 +70,6 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Navbar -->
     <nav class="w-full py-6 px-4 border-b-2 border-mustard/30 sticky top-0 bg-white/95 backdrop-blur-sm z-50">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -84,12 +80,10 @@
                 </div>
             </div>
             
-            <!-- Quota Display -->
             <div class="flex flex-col items-end">
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Status Sistem & Kuota</div>
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Status Global</div>
                 <div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-                    <div id="quotaIndicator" class="w-2 h-2 rounded-full bg-green-500"></div>
-                    <!-- Spinner kecil saat loading data firebase -->
+                    <div id="quotaIndicator" class="w-2 h-2 rounded-full bg-gray-400"></div>
                     <div id="quotaLoader" class="w-3 h-3 border-2 border-gray-300 border-t-navy rounded-full animate-spin"></div>
                     <span id="quotaText" class="text-sm font-bold text-navy hidden">...</span>
                 </div>
@@ -99,24 +93,22 @@
 
     <main class="flex-grow w-full max-w-4xl mx-auto px-4 py-8 space-y-10">
 
-        <!-- Generator Section -->
         <section id="generatorSection" class="transition-all duration-500">
             <div class="text-center space-y-4 mb-8">
                 <h2 class="text-3xl font-bold text-navy">Siap Menulis?</h2>
                 <p class="opacity-70 max-w-lg mx-auto">
-                    Dapatkan ide cerita unik. Kuota AI bersifat global. Jika habis atau terjadi gangguan, sistem otomatis beralih ke Mode Pustaka Offline.
+                    Dapatkan ide cerita unik. Sistem menggunakan AI canggih via Vercel Secure Gateway. Jika terjadi gangguan, Mode Pustaka Offline aktif otomatis.
                 </p>
-                <button onclick="window.generateChallenge()" id="generateBtn"
+                <button id="generateBtn"
                     class="bg-mustard text-navy px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 mx-auto">
                     <span id="genBtnText">Buat Tantangan Baru</span>
-                    <div id="genBtnLoader" class="loader hidden"></div>
+                    <div id="genBtnLoader" class="loader hidden border-navy border-t-transparent"></div>
                     <i data-lucide="sparkles" id="genBtnIcon"></i>
                 </button>
                 <p id="modeIndicator" class="text-xs text-gray-400 font-bold mt-2 hidden">Mode: <span class="text-green-600">AI Online</span></p>
             </div>
 
-            <!-- Challenge Result Card -->
-            <div id="challengeCard" class="hidden bg-white border-2 border-mustard rounded-xl p-8 shadow-lg relative overflow-hidden">
+            <div id="challengeCard" class="hidden bg-white border-2 border-mustard rounded-xl p-8 shadow-lg relative overflow-hidden transition-all">
                 <div class="absolute top-0 right-0 p-4 opacity-10">
                     <i data-lucide="pen-tool" class="w-24 h-24 text-navy"></i>
                 </div>
@@ -151,7 +143,6 @@
             </div>
         </section>
 
-        <!-- Writing Section -->
         <section id="writingSection" class="hidden transition-all duration-500">
             <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                 <div class="bg-navy text-white p-4 flex justify-between items-center">
@@ -167,9 +158,9 @@
                     class="w-full h-[500px] p-6 text-lg leading-relaxed focus:outline-none resize-y text-gray-800 font-serif placeholder-gray-300"
                     placeholder="Mulailah menulis ceritamu di sini... Biarkan imajinasimu mengalir..."></textarea>
                 
-                <div class="bg-gray-50 p-4 border-t border-gray-200 flex justify-end items-center gap-4">
-                    <span id="evaluationInfo" class="text-xs text-gray-500 italic hidden">Evaluasi tidak tersedia (Sistem Offline)</span>
-                    <button onclick="window.submitStory()" id="submitBtn" disabled
+                <div class="bg-gray-50 p-4 border-t border-gray-200 flex justify-end items-center gap-4 flex-wrap">
+                    <span id="evaluationInfo" class="text-xs text-gray-500 italic hidden">Evaluasi tidak tersedia (Offline)</span>
+                    <button id="submitBtn" disabled
                         class="bg-gray-300 text-gray-500 cursor-not-allowed px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
                         <span id="subBtnText">Kirim untuk Evaluasi AI</span>
                         <div id="subBtnLoader" class="loader hidden border-gray-500 border-t-transparent"></div>
@@ -181,15 +172,14 @@
             </div>
         </section>
 
-        <!-- Feedback Section -->
         <section id="feedbackSection" class="hidden pb-20">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h2 class="text-2xl font-bold flex items-center gap-2">
                     <i data-lucide="message-square" class="text-mustard"></i>
-                    Ulasan Cendekia Aksara
+                    Ulasan Editor AI
                 </h2>
                 
-                <button onclick="window.downloadDocument()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-all flex items-center gap-2">
+                <button id="downloadBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-all flex items-center gap-2">
                     <i data-lucide="download"></i>
                     Unduh Dokumen (.doc)
                 </button>
@@ -206,23 +196,22 @@
 
     </main>
 
-    <!-- Modal Popup -->
     <div id="customModal" class="modal fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-navy/80 backdrop-blur-sm" onclick="window.closeModal()"></div>
+        <div class="absolute inset-0 bg-navy/80 backdrop-blur-sm" onclick="closeModal()"></div>
         <div class="modal-content bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative z-10">
             <div class="bg-mustard p-4 flex justify-between items-center">
                 <h3 class="font-bold text-navy flex items-center gap-2">
                     <i data-lucide="info" class="w-5 h-5"></i>
                     <span id="modalTitle">Informasi</span>
                 </h3>
-                <button onclick="window.closeModal()" class="text-navy hover:bg-white/20 rounded-full p-1 transition">
+                <button onclick="closeModal()" class="text-navy hover:bg-white/20 rounded-full p-1 transition">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="p-6">
                 <p id="modalMessage" class="text-gray-700 leading-relaxed mb-6">Pesan modal disini...</p>
                 <div class="flex justify-end">
-                    <button onclick="window.closeModal()" class="bg-navy text-white px-6 py-2 rounded-lg font-bold hover:opacity-90 transition">
+                    <button onclick="closeModal()" class="bg-navy text-white px-6 py-2 rounded-lg font-bold hover:opacity-90 transition">
                         Mengerti
                     </button>
                 </div>
@@ -234,14 +223,12 @@
         &copy; Cendekia Aksara Idea Generator
     </footer>
 
-    <!-- LOGIC SCRIPT TYPE MODULE UNTUK FIREBASE & APP -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, doc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
 
-        // --- KONFIGURASI FIREBASE ---
+        // --- KONFIGURASI FIREBASE (AMAN DI EXPOSE KARENA DILINDUNGI RULES) ---
         const firebaseConfig = {
             apiKey: "AIzaSyCuhmevYBaj2VvZXEjGFeYe_DY2QmdopHc",
             authDomain: "goresanaksara-1a234.firebaseapp.com",
@@ -252,81 +239,39 @@
             measurementId: "G-N15WLSV8Z5"
         };
 
-        // Initialize Firebase Services
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const analytics = getAnalytics(app);
 
-        // Sign in anonymously agar bisa akses database jika rules membutuhkan auth
-        signInAnonymously(auth).catch((error) => {
-            console.error("Gagal login anonim ke Firebase:", error);
-        });
-
-        // --- GEMINI API CONFIG ---
-        const API_KEY = "AIzaSyDdNnIl0BFnK3ChmdMp5zE6dxod70AS3og"; 
-        const MAX_DAILY_QUOTA = 20;
+        // Login anonim untuk akses database
+        signInAnonymously(auth).catch((error) => console.error("Firebase Auth Error:", error));
 
         // --- VARIABLES ---
+        const MAX_DAILY_QUOTA = 20;
         let currentChallenge = null;
         let lastFeedbackMarkdown = "";
         let currentGlobalUsage = 0; 
-        let isSystemOffline = false; // Flag jika AI Error (selain kuota habis)
+        let isSystemOffline = false;
 
-        // --- DATABASE OFFLINE ---
+        // --- OFFLINE DATA ---
         const offlineData = {
-            genres: [
-                "Cyberpunk Nusantara", "Misteri Sejarah Majapahit", "Realisme Magis Pedesaan", 
-                "Thriller Psikologis di Kos-kosan", "Romansa Dystopia Jakarta", "Horor Folklor Modern",
-                "Sci-Fi Biopunk Tropis", "Drama Keluarga Lintas Dimensi", "Komedi Gelap Perkantoran",
-                "Petualangan Steampunk Kolonial"
-            ],
-            ideas: [
-                "Seorang protagonis yang bisa mencium kebohongan dari bau keringat.",
-                "Dunia di mana hujan turun ke atas, bukan ke bawah.",
-                "Sebuah warung kopi yang buka di celah waktu antara detik ke-59 dan menit baru.",
-                "Karakter utama menemukan buku harian yang ditulis oleh dirinya sendiri dari masa depan.",
-                "Teknologi yang memungkinkan orang menjual kenangan buruk mereka.",
-                "Seorang hantu yang takut menakut-nakuti manusia.",
-                "Kota yang tenggelam setiap malam dan muncul kembali saat fajar.",
-                "Sebuah aplikasi kencan yang menjodohkan orang berdasarkan cara mereka mati nanti.",
-                "Seseorang terbangun dan menyadari semua orang di dunia menghilang kecuali satu musuhnya.",
-                "Pewaris tahta kerajaan gaib yang lebih memilih jadi driver ojol."
-            ],
-            premises: [
-                "Dia harus menyelamatkan orang yang paling dia benci untuk mencegah kiamat lokal.",
-                "Untuk mendapatkan kembali ingatannya, dia harus mengkhianati satu-satunya teman yang dia miliki.",
-                "Kejadian aneh dimulai ketika dia menemukan pintu tua di dinding kamarnya yang sebelumnya tidak ada.",
-                "Dia diberi kesempatan mengulang satu hari yang sama selamanya, tapi setiap pengulangan mengurangi usianya.",
-                "Sebuah surat misterius datang, mengklaim bahwa kehidupan yang dia jalani hanyalah simulasi beta.",
-                "Dia dituduh melakukan kejahatan yang belum terjadi, dan bukti-buktinya sangat meyakinkan.",
-                "Perjalanan pulang kampung berubah menjadi mimpi buruk ketika jalan tol tidak berujung.",
-                "Dia menemukan bahwa kucing peliharaannya adalah agen rahasia dari peradaban kuno.",
-                "Setiap kali dia berbohong, satu bagian tubuhnya menjadi transparan.",
-                "Dia harus memenangkan debat melawan bayangannya sendiri untuk bisa bangun dari koma."
-            ]
+            genres: ["Cyberpunk Nusantara", "Misteri Sejarah Majapahit", "Realisme Magis Pedesaan", "Thriller Psikologis Kos-kosan", "Horor Folklor Modern"],
+            ideas: ["Mencium kebohongan dari bau keringat.", "Warung kopi di celah waktu.", "Buku harian dari masa depan.", "Aplikasi kencan berdasarkan cara mati.", "Hantu yang takut manusia."],
+            premises: ["Dia harus menyelamatkan musuhnya untuk mencegah kiamat.", "Kucingnya ternyata agen rahasia kuno.", "Setiap berbohong, tubuhnya jadi transparan.", "Terjebak di hari yang sama tapi umur berkurang.", "Jalan pulang berubah jadi labirin tak berujung."]
         };
 
-        // --- FIREBASE QUOTA LOGIC ---
-        
+        // --- FIREBASE LOGIC (QUOTA) ---
         function initQuotaListener() {
             const docRef = doc(db, "daily_limits", "global");
-            
             onSnapshot(docRef, (docSnapshot) => {
                 const today = new Date().toDateString();
-                const loader = document.getElementById('quotaLoader');
-                const text = document.getElementById('quotaText');
-                
-                loader.classList.add('hidden');
-                text.classList.remove('hidden');
+                document.getElementById('quotaLoader').classList.add('hidden');
+                document.getElementById('quotaText').classList.remove('hidden');
 
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();
-                    
-                    // Reset visual jika hari berganti
                     if (data.date !== today) {
                         currentGlobalUsage = 0;
-                        // Reset status offline juga karena hari baru mungkin limit API reset
                         isSystemOffline = false; 
                     } else {
                         currentGlobalUsage = data.count || 0;
@@ -334,135 +279,93 @@
                 } else {
                     currentGlobalUsage = 0;
                 }
-                
                 updateQuotaUI();
             }, (error) => {
-                console.error("Error listening to quota:", error);
-                // Jika koneksi ke Firebase gagal, anggap offline
+                console.error("Firebase Error:", error);
                 isSystemOffline = true;
                 updateQuotaUI();
             });
         }
 
         async function consumeQuota() {
+            if (isSystemOffline) return true; // Bypass jika offline (nanti pakai data offline)
+            
             const docRef = doc(db, "daily_limits", "global");
             const today = new Date().toDateString();
             
             try {
                 const result = await runTransaction(db, async (transaction) => {
                     const sfDoc = await transaction.get(docRef);
-                    
                     if (!sfDoc.exists()) {
                         transaction.set(docRef, { date: today, count: 1 });
                         return "success";
                     }
-
                     const data = sfDoc.data();
-                    
                     if (data.date !== today) {
                         transaction.update(docRef, { date: today, count: 1 });
                         return "success";
                     }
-
-                    if (data.count >= MAX_DAILY_QUOTA) {
-                        return "limit_reached";
-                    }
-
+                    if (data.count >= MAX_DAILY_QUOTA) return "limit_reached";
                     transaction.update(docRef, { count: data.count + 1 });
                     return "success";
                 });
 
-                if (result === "limit_reached") {
-                    throw new Error("QUOTA_EXCEEDED");
-                }
+                if (result === "limit_reached") throw new Error("QUOTA_EXCEEDED");
                 return true;
-
             } catch (e) {
-                console.error("Quota Transaction Failed:", e);
+                console.error("Quota Error:", e);
                 throw e; 
             }
         }
 
         function updateQuotaUI() {
-            const indicator = document.getElementById('quotaIndicator');
+            let remaining = Math.max(0, MAX_DAILY_QUOTA - currentGlobalUsage);
+            if (isSystemOffline) remaining = 0;
+
             const text = document.getElementById('quotaText');
+            const indicator = document.getElementById('quotaIndicator');
             const modeInd = document.getElementById('modeIndicator');
             const evalInfo = document.getElementById('evaluationInfo');
-
-            // Logika Gabungan: Kuota Habis ATAU Sistem Error
-            let remaining = Math.max(0, MAX_DAILY_QUOTA - currentGlobalUsage);
-            
-            // Jika sistem dideteksi offline (misal API Error), paksa tampilan 0/Merah
-            if (isSystemOffline) {
-                remaining = 0; 
-            }
 
             text.innerText = `${remaining}/${MAX_DAILY_QUOTA}`;
 
             if (remaining === 0) {
-                indicator.classList.remove('bg-green-500');
-                indicator.classList.add('bg-red-500');
-                text.classList.add('text-red-600');
-                
+                indicator.className = "w-2 h-2 rounded-full bg-red-500";
+                text.className = "text-sm font-bold text-red-600";
                 modeInd.classList.remove('hidden');
-                
-                if (isSystemOffline) {
-                    modeInd.innerHTML = `Mode: <span class="text-red-600">Offline (Gangguan Sistem)</span>`;
-                    evalInfo.innerText = "Evaluasi tidak tersedia (Gangguan Sistem)";
-                } else {
-                    modeInd.innerHTML = `Mode: <span class="text-mustard-dark">Pustaka Offline (Kuota Habis)</span>`;
-                    evalInfo.innerText = "Evaluasi tidak tersedia (Kuota Habis)";
-                }
-                
+                modeInd.innerHTML = `Mode: <span class="text-red-600 font-bold">${isSystemOffline ? 'Offline (Gangguan)' : 'Pustaka Offline'}</span>`;
                 evalInfo.classList.remove('hidden');
+                evalInfo.innerText = isSystemOffline ? "Evaluasi tidak tersedia (Gangguan)" : "Evaluasi tidak tersedia (Kuota Habis)";
             } else {
-                indicator.classList.add('bg-green-500');
-                indicator.classList.remove('bg-red-500');
-                text.classList.remove('text-red-600');
-                
+                indicator.className = "w-2 h-2 rounded-full bg-green-500";
+                text.className = "text-sm font-bold text-navy";
                 modeInd.classList.remove('hidden');
-                modeInd.innerHTML = `Mode: <span class="text-green-600">AI Online</span>`;
+                modeInd.innerHTML = `Mode: <span class="text-green-600 font-bold">AI Online</span>`;
                 evalInfo.classList.add('hidden');
             }
         }
 
-        // --- GEMINI API CALLER ---
-        async function callGemini(prompt) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
-            
-            const response = await fetch(url, {
+        // --- VERCEL AI CALLER (SECURE) ---
+        async function callGeminiVercel(promptText) {
+            // Kita panggil backend Vercel kita sendiri, BUKAN Google langsung
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
+                body: JSON.stringify({ prompt: promptText })
             });
 
-            if (!response.ok) {
-                // Deteksi spesifik jika error dari AI (misal 429 Too Many Requests atau 400 Bad Request)
-                throw new Error('AI_ERROR');
-            }
+            if (!response.ok) throw new Error("SERVER_ERROR");
+            
             const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
+            if (data.error) throw new Error(data.error);
+            
+            return data.answer;
         }
 
-        // --- OFFLINE GENERATOR ---
-        function generateOfflineChallenge() {
-            const g = offlineData.genres[Math.floor(Math.random() * offlineData.genres.length)];
-            const i = offlineData.ideas[Math.floor(Math.random() * offlineData.ideas.length)];
-            const p = offlineData.premises[Math.floor(Math.random() * offlineData.premises.length)];
-
-            return {
-                genre: g,
-                ide_unik: i,
-                premis: p,
-                is_offline: true
-            };
-        }
-
-        // --- GLOBAL FUNCTIONS ---
-
-        window.generateChallenge = async function() {
+        // --- MAIN FUNCTIONS ---
+        
+        // 1. Generate Challenge
+        document.getElementById('generateBtn').addEventListener('click', async () => {
             const btn = document.getElementById('generateBtn');
             const btnText = document.getElementById('genBtnText');
             const loader = document.getElementById('genBtnLoader');
@@ -473,59 +376,45 @@
             icon.classList.add('hidden');
 
             try {
-                // 1. Coba konsumsi kuota Firebase
-                // Jika sistem sudah terdeteksi offline sebelumnya, jangan coba ambil kuota
-                if (isSystemOffline) throw new Error("AI_ERROR");
+                // Cek kuota dulu
+                if (!isSystemOffline) await consumeQuota();
 
-                await consumeQuota();
-
-                // 2. Jika kuota aman, coba panggil AI
-                btnText.innerText = "Meracik Ide (AI)...";
-                const prompt = `
-                    Berikan saya tantangan menulis cerita pendek dalam Bahasa Indonesia.
-                    Format output HARUS JSON valid tanpa markdown block code.
-                    Struktur JSON:
-                    {
-                        "genre": "Genre cerita (misal: Cyberpunk Jawa, Misteri Sejarah, dll)",
-                        "ide_unik": "Satu kalimat ide inti yang tidak biasa",
-                        "premis": "Premis cerita yang spesifik dan menantang (maksimal 2 kalimat)"
-                    }
-                    Pastikan idenya kreatif, sastrawi, dan memancing imajinasi.
-                `;
+                btnText.innerText = "Meracik Ide...";
                 
-                let result = await callGemini(prompt);
-                result = result.replace(/```json/g, '').replace(/```/g, '').trim();
-                currentChallenge = JSON.parse(result);
+                const prompt = `
+                    Buatkan tantangan cerpen Bahasa Indonesia format JSON murni:
+                    { "genre": "...", "ide_unik": "...", "premis": "..." }
+                    Genre harus kreatif/unik. Jangan pakai markdown.
+                `;
+
+                // Panggil Vercel API
+                let resultText = await callGeminiVercel(prompt);
+                
+                // Bersihkan Markdown jika AI bandel
+                resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+                currentChallenge = JSON.parse(resultText);
                 currentChallenge.is_offline = false;
 
             } catch (error) {
-                // LOGIKA DETEKSI ERROR & SWITCH MODE
+                console.warn("Switching to Offline Mode:", error);
                 
-                let modalTitle = "Koneksi/AI Error";
-                let modalMsg = "Gagal menghubungi AI. Mengalihkan ke Mode Offline.";
+                let msg = "Dialihkan ke Mode Offline.";
+                if (error.message === "QUOTA_EXCEEDED") msg = "Kuota harian habis. Mode Offline aktif.";
+                else isSystemOffline = true;
 
-                if (error.message === "QUOTA_EXCEEDED") {
-                    modalTitle = "Kuota Global Habis";
-                    modalMsg = "Kuota harian (20 request) telah habis. Anda dialihkan ke <b>Mode Pustaka Offline</b>.";
-                } else if (error.message === "AI_ERROR" || error.message.includes("fetch")) {
-                    // Ini yang diminta: Deteksi error AI dan matikan indikator
-                    isSystemOffline = true;
-                    updateQuotaUI(); // Update UI jadi Merah
-                    modalTitle = "Gangguan Sistem AI";
-                    modalMsg = "Maaf, sistem AI sedang mengalami gangguan atau limit. Sistem otomatis beralih ke <b>Mode Offline</b>.";
-                } else {
-                    console.error(error);
-                }
-
-                window.showModal(modalTitle, modalMsg);
-
-                // Generate Offline Content
-                btnText.innerText = "Mengambil Ide Pustaka...";
-                await new Promise(r => setTimeout(r, 500)); 
-                currentChallenge = generateOfflineChallenge();
+                showModal("Info Sistem", msg);
+                updateQuotaUI();
+                
+                // Fallback ke data offline
+                currentChallenge = {
+                    genre: offlineData.genres[Math.floor(Math.random() * offlineData.genres.length)],
+                    ide_unik: offlineData.ideas[Math.floor(Math.random() * offlineData.ideas.length)],
+                    premis: offlineData.premises[Math.floor(Math.random() * offlineData.premises.length)],
+                    is_offline: true
+                };
             }
 
-            // Render Result
+            // Render UI
             document.getElementById('resGenre').innerText = currentChallenge.genre;
             document.getElementById('resIdea').innerText = currentChallenge.ide_unik;
             document.getElementById('resPremise').innerText = currentChallenge.premis;
@@ -533,79 +422,70 @@
             document.getElementById('challengeCard').classList.remove('hidden');
             document.getElementById('writingSection').classList.remove('hidden');
             
-            setTimeout(() => {
-                document.getElementById('challengeCard').scrollIntoView({behavior: 'smooth', block: 'center'});
-            }, 100);
+            setTimeout(() => document.getElementById('challengeCard').scrollIntoView({behavior: 'smooth', block: 'center'}), 100);
 
             btn.disabled = false;
             btnText.innerText = "Buat Tantangan Baru";
             loader.classList.add('hidden');
             icon.classList.remove('hidden');
-        };
+        });
 
-        window.submitStory = async function() {
+        // 2. Submit Story
+        document.getElementById('submitBtn').addEventListener('click', async () => {
             if (!currentChallenge) return;
-
-            // Cek visual
+            
             if (currentGlobalUsage >= MAX_DAILY_QUOTA || isSystemOffline) {
-                 window.showModal("Fitur Tidak Tersedia", "Maaf, fitur evaluasi tidak tersedia saat ini (Kuota Habis atau Gangguan Sistem). Silakan unduh cerpen Anda.");
-                 return;
+                showModal("Fitur Terbatas", "Evaluasi AI tidak tersedia saat ini. Silakan unduh cerpen Anda.");
+                return;
             }
 
             const storyText = document.getElementById('storyInput').value;
-            const wordCount = parseInt(document.getElementById('wordCount').innerText);
+            const wordCount = document.getElementById('wordCount').innerText;
             const btn = document.getElementById('submitBtn');
             const btnText = document.getElementById('subBtnText');
             const loader = document.getElementById('subBtnLoader');
-            const feedbackSection = document.getElementById('feedbackSection');
-            const feedbackContent = document.getElementById('aiFeedbackContent');
 
             btn.disabled = true;
-            btnText.innerText = "Sedang Mengulas...";
+            btnText.innerText = "Editor sedang membaca...";
             loader.classList.remove('hidden');
 
             try {
                 await consumeQuota();
 
                 const prompt = `
-                    Bertindaklah sebagai editor fiksi senior.
-                    TANTANGAN: Genre: ${currentChallenge.genre}, Ide: ${currentChallenge.ide_unik}, Premis: ${currentChallenge.premis}
-                    CERITA PENGGUNA (${wordCount} kata):
-                    "${storyText.substring(0, 15000)}"
-                    TUGAS: Berikan ulasan mendalam (Markdown).
+                    Bertindak sebagai editor fiksi. Berikan feedback cerpen ini.
+                    Genre: ${currentChallenge.genre}
+                    Premis: ${currentChallenge.premis}
+                    Cerita: "${storyText.substring(0, 10000)}"
+                    Berikan output dalam format Markdown yang rapi.
                 `;
 
-                const result = await callGemini(prompt);
-                lastFeedbackMarkdown = result; 
-                feedbackContent.innerHTML = marked.parse(result);
+                const feedback = await callGeminiVercel(prompt);
+                lastFeedbackMarkdown = feedback;
                 
-                feedbackSection.classList.remove('hidden');
+                document.getElementById('aiFeedbackContent').innerHTML = marked.parse(feedback);
+                document.getElementById('feedbackSection').classList.remove('hidden');
+                
                 setTimeout(() => {
-                    feedbackSection.scrollIntoView({behavior: 'smooth'});
-                    window.showModal("PENTING: Unduh Karyamu!", "Harap segera unduh cerpen dan hasil evaluasi Anda.<br>Data pada browser ini hanya bersifat sementara.");
+                    document.getElementById('feedbackSection').scrollIntoView({behavior: 'smooth'});
+                    showModal("Selesai!", "Jangan lupa unduh karyamu sebelum keluar.");
                 }, 500);
 
             } catch (error) {
-                if (error.message === "AI_ERROR" || error.message.includes("fetch")) {
-                    isSystemOffline = true;
-                    updateQuotaUI();
-                    window.showModal("Gagal Evaluasi", "Terjadi gangguan pada sistem AI. Silakan coba lagi nanti atau unduh cerpen Anda.");
-                } else if (error.message === "QUOTA_EXCEEDED") {
-                     window.showModal("Kuota Habis", "Maaf, saat proses berjalan, kuota global telah habis.");
-                } else {
-                     window.showModal("Error", "Terjadi kesalahan. Silakan coba lagi.");
-                }
+                showModal("Gagal", "Gagal melakukan evaluasi AI. Coba lagi atau unduh saja.");
+                console.error(error);
             } finally {
                 btn.disabled = false;
                 btnText.innerText = "Kirim untuk Evaluasi AI";
                 loader.classList.add('hidden');
             }
-        };
+        });
 
-        window.downloadDocument = function() {
+        // 3. Download Document
+        document.getElementById('downloadBtn').addEventListener('click', () => {
             if (!currentChallenge) return;
             const storyText = document.getElementById('storyInput').value.replace(/\n/g, "<br>");
-            const feedbackHtml = lastFeedbackMarkdown ? marked.parse(lastFeedbackMarkdown) : "<p><em>Evaluasi tidak tersedia.</em></p>";
+            const feedbackHtml = lastFeedbackMarkdown ? marked.parse(lastFeedbackMarkdown) : "<p><em>Tidak ada evaluasi.</em></p>";
             
             const content = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -614,91 +494,71 @@
                     <h1>${currentChallenge.genre}</h1>
                     <p><strong>Ide:</strong> ${currentChallenge.ide_unik}</p>
                     <p><strong>Premis:</strong> ${currentChallenge.premis}</p>
-                    <hr>
-                    ${storyText}
-                    <hr>
-                    <h3>Evaluasi AI</h3>
-                    ${feedbackHtml}
-                </body>
-                </html>
-            `;
+                    <hr>${storyText}<hr>
+                    <h3>Evaluasi AI</h3>${feedbackHtml}
+                </body></html>`;
+            
             const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `Cendekia_Aksara_${Date.now()}.doc`;
+            link.download = `Cendekia_${Date.now()}.doc`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        };
+        });
 
-        // --- MODAL UTILS ---
-        window.showModal = function(title, message) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerHTML = message;
-            document.getElementById('customModal').classList.add('active');
-        };
-
-        window.closeModal = function() {
-            document.getElementById('customModal').classList.remove('active');
-        };
-
-        // --- INIT ---
+        // 4. Utils & Init
         lucide.createIcons();
         
+        // Modal Logic
+        window.showModal = (title, msg) => {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerHTML = msg;
+            document.getElementById('customModal').classList.add('active');
+        };
+        window.closeModal = () => document.getElementById('customModal').classList.remove('active');
+
+        // Word Count Logic
         const storyInput = document.getElementById('storyInput');
         const wordCountDisplay = document.getElementById('wordCount');
         const submitBtn = document.getElementById('submitBtn');
         const warningText = document.getElementById('warningText');
-        const wordCountBadge = document.getElementById('wordCountBadge');
+        const badge = document.getElementById('wordCountBadge');
 
         storyInput.addEventListener('input', () => {
             const text = storyInput.value.trim();
-            const count = text.length === 0 ? 0 : text.split(/\s+/).length;
+            const count = text === "" ? 0 : text.split(/\s+/).length;
             wordCountDisplay.innerText = count;
             
-            const isWordCountValid = count >= 700 && count <= 5000;
-            // Cek visual quota & status sistem
-            const quotaAvailable = (currentGlobalUsage < MAX_DAILY_QUOTA) && !isSystemOffline;
+            const isValid = count >= 700 && count <= 5000;
+            const isOnline = (currentGlobalUsage < MAX_DAILY_QUOTA) && !isSystemOffline;
 
-            if (isWordCountValid) {
-                wordCountBadge.classList.replace('bg-red-500', 'bg-green-100');
-                wordCountBadge.classList.replace('text-white', 'text-green-800');
+            if (isValid) {
+                badge.className = "bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-mono";
                 warningText.innerText = "";
                 
-                if (quotaAvailable) {
+                if (isOnline) {
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
                     submitBtn.classList.add('bg-navy', 'text-white', 'hover:bg-opacity-90');
                 } else {
                     submitBtn.disabled = true;
-                    submitBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
-                    submitBtn.classList.remove('bg-navy', 'text-white', 'hover:bg-opacity-90');
-                    if (isSystemOffline) {
-                        warningText.innerText = "Kata terpenuhi, namun sistem sedang gangguan (Offline).";
-                    } else {
-                        warningText.innerText = "Kata terpenuhi, namun kuota evaluasi global habis.";
-                    }
-                    warningText.classList.replace('text-red-500', 'text-mustard-dark');
+                    warningText.innerText = "Mode Offline: Evaluasi AI tidak tersedia.";
+                    warningText.className = "px-4 pb-2 text-xs text-right text-mustard-dark h-6";
                 }
             } else {
                 submitBtn.disabled = true;
-                submitBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
-                submitBtn.classList.remove('bg-navy', 'text-white', 'hover:bg-opacity-90');
-                wordCountBadge.classList.replace('bg-green-100', 'bg-red-500');
-                wordCountBadge.classList.replace('text-green-800', 'text-white');
-                warningText.classList.replace('text-mustard-dark', 'text-red-500');
-
-                if (count < 700) {
-                    warningText.innerText = `Masih kurang ${700 - count} kata lagi (Minimal 700).`;
-                } else if (count > 5000) {
-                    warningText.innerText = `Kelebihan ${count - 5000} kata (Maksimal 5000).`;
-                }
+                submitBtn.className = "bg-gray-300 text-gray-500 cursor-not-allowed px-6 py-2 rounded-lg font-bold flex items-center gap-2";
+                badge.className = "bg-red-500 text-white px-3 py-1 rounded-full text-sm font-mono";
+                warningText.className = "px-4 pb-2 text-xs text-right text-red-500 h-6";
+                
+                if (count < 700) warningText.innerText = `Kurang ${700 - count} kata lagi.`;
+                else warningText.innerText = `Kelebihan ${count - 5000} kata.`;
             }
         });
 
         initQuotaListener();
-
     </script>
 </body>
 </html>
