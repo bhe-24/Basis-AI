@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap');
+
+/* Konfigurasi Warna Custom */
+:root {
+    --color-navy: #001f3f;
+    --color-mustard: #FFDB58;
+    --color-mustard-dark: #e1c12e;
+}
+
+body {
+    background-color: #ffffff;
+    color: var(--color-navy);
+    font-family: 'Lato', sans-serif;
+}
+
+h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+.text-navy { color: var(--color-navy); }
+.bg-navy { background-color: var(--color-navy); }
+.text-mustard { color: #d4a000; }
+.bg-mustard { background-color: var(--color-mustard); }
+.bg-mustard-hover:hover { background-color: var(--color-mustard-dark); }
+.border-mustard { border-color: var(--color-mustard); }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #d4a000; border-radius: 4px; }
+
+.loader {
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 3px solid var(--color-mustard-dark);
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.modal {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+.modal-content {
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+.modal.active .modal-content {
+    transform: scale(1);
+}
