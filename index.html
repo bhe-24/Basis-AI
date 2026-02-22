@@ -10,7 +10,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap');
 
-        /* Konfigurasi Warna Custom */
         :root {
             --color-navy: #001f3f;
             --color-mustard: #FFDB58;
@@ -79,15 +78,6 @@
                     <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Idea Generator</span>
                 </div>
             </div>
-            
-            <div class="flex flex-col items-end">
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Status Global</div>
-                <div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-                    <div id="quotaIndicator" class="w-2 h-2 rounded-full bg-gray-400"></div>
-                    <div id="quotaLoader" class="w-3 h-3 border-2 border-gray-300 border-t-navy rounded-full animate-spin"></div>
-                    <span id="quotaText" class="text-sm font-bold text-navy hidden">...</span>
-                </div>
-            </div>
         </div>
     </nav>
 
@@ -97,7 +87,7 @@
             <div class="text-center space-y-4 mb-8">
                 <h2 class="text-3xl font-bold text-navy">Siap Menulis?</h2>
                 <p class="opacity-70 max-w-lg mx-auto">
-                    Dapatkan ide cerita unik. Sistem menggunakan AI canggih via Vercel Secure Gateway. Jika terjadi gangguan, Mode Pustaka Offline aktif otomatis.
+                    Dapatkan ide cerita unik. Sistem ini menggunakan AI canggih untuk memandu karya terbarumu.
                 </p>
                 <button id="generateBtn"
                     class="bg-mustard text-navy px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 mx-auto">
@@ -105,7 +95,6 @@
                     <div id="genBtnLoader" class="loader hidden border-navy border-t-transparent"></div>
                     <i data-lucide="sparkles" id="genBtnIcon"></i>
                 </button>
-                <p id="modeIndicator" class="text-xs text-gray-400 font-bold mt-2 hidden">Mode: <span class="text-green-600">AI Online</span></p>
             </div>
 
             <div id="challengeCard" class="hidden bg-white border-2 border-mustard rounded-xl p-8 shadow-lg relative overflow-hidden transition-all">
@@ -159,7 +148,6 @@
                     placeholder="Mulailah menulis ceritamu di sini... Biarkan imajinasimu mengalir..."></textarea>
                 
                 <div class="bg-gray-50 p-4 border-t border-gray-200 flex justify-end items-center gap-4 flex-wrap">
-                    <span id="evaluationInfo" class="text-xs text-gray-500 italic hidden">Evaluasi tidak tersedia (Offline)</span>
                     <button id="submitBtn" disabled
                         class="bg-gray-300 text-gray-500 cursor-not-allowed px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
                         <span id="subBtnText">Kirim untuk Evaluasi AI</span>
@@ -224,129 +212,11 @@
     </footer>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, doc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-
-        // --- KONFIGURASI FIREBASE ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCuhmevYBaj2VvZXEjGFeYe_DY2QmdopHc",
-            authDomain: "goresanaksara-1a234.firebaseapp.com",
-            projectId: "goresanaksara-1a234",
-            storageBucket: "goresanaksara-1a234.firebasestorage.app",
-            messagingSenderId: "975817245608",
-            appId: "1:975817245608:web:9882ec9b72a47df662d39d",
-            measurementId: "G-N15WLSV8Z5"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Login anonim untuk akses database
-        signInAnonymously(auth).catch((error) => console.error("Firebase Auth Error:", error));
-
         // --- VARIABLES ---
-        const MAX_DAILY_QUOTA = 20;
         let currentChallenge = null;
         let lastFeedbackMarkdown = "";
-        let currentGlobalUsage = 0; 
-        let isSystemOffline = false;
 
-        // --- OFFLINE DATA ---
-        const offlineData = {
-            genres: ["Cyberpunk Nusantara", "Misteri Sejarah Majapahit", "Realisme Magis Pedesaan", "Thriller Psikologis Kos-kosan", "Horor Folklor Modern"],
-            ideas: ["Mencium kebohongan dari bau keringat.", "Warung kopi di celah waktu.", "Buku harian dari masa depan.", "Aplikasi kencan berdasarkan cara mati.", "Hantu yang takut manusia."],
-            premises: ["Dia harus menyelamatkan musuhnya untuk mencegah kiamat.", "Kucingnya ternyata agen rahasia kuno.", "Setiap berbohong, tubuhnya jadi transparan.", "Terjebak di hari yang sama tapi umur berkurang.", "Jalan pulang berubah jadi labirin tak berujung."]
-        };
-
-        // --- FIREBASE LOGIC (QUOTA) ---
-        function initQuotaListener() {
-            const docRef = doc(db, "daily_limits", "global");
-            onSnapshot(docRef, (docSnapshot) => {
-                const today = new Date().toDateString();
-                document.getElementById('quotaLoader').classList.add('hidden');
-                document.getElementById('quotaText').classList.remove('hidden');
-
-                if (docSnapshot.exists()) {
-                    const data = docSnapshot.data();
-                    if (data.date !== today) {
-                        currentGlobalUsage = 0;
-                        isSystemOffline = false; 
-                    } else {
-                        currentGlobalUsage = data.count || 0;
-                    }
-                } else {
-                    currentGlobalUsage = 0;
-                }
-                updateQuotaUI();
-            }, (error) => {
-                console.error("Firebase Error:", error);
-                isSystemOffline = true;
-                updateQuotaUI();
-            });
-        }
-
-        async function consumeQuota() {
-            if (isSystemOffline) return true; 
-            
-            const docRef = doc(db, "daily_limits", "global");
-            const today = new Date().toDateString();
-            
-            try {
-                const result = await runTransaction(db, async (transaction) => {
-                    const sfDoc = await transaction.get(docRef);
-                    if (!sfDoc.exists()) {
-                        transaction.set(docRef, { date: today, count: 1 });
-                        return "success";
-                    }
-                    const data = sfDoc.data();
-                    if (data.date !== today) {
-                        transaction.update(docRef, { date: today, count: 1 });
-                        return "success";
-                    }
-                    if (data.count >= MAX_DAILY_QUOTA) return "limit_reached";
-                    transaction.update(docRef, { count: data.count + 1 });
-                    return "success";
-                });
-
-                if (result === "limit_reached") throw new Error("QUOTA_EXCEEDED");
-                return true;
-            } catch (e) {
-                console.error("Quota Error:", e);
-                throw e; 
-            }
-        }
-
-        function updateQuotaUI() {
-            let remaining = Math.max(0, MAX_DAILY_QUOTA - currentGlobalUsage);
-            if (isSystemOffline) remaining = 0;
-
-            const text = document.getElementById('quotaText');
-            const indicator = document.getElementById('quotaIndicator');
-            const modeInd = document.getElementById('modeIndicator');
-            const evalInfo = document.getElementById('evaluationInfo');
-
-            text.innerText = `${remaining}/${MAX_DAILY_QUOTA}`;
-
-            if (remaining === 0) {
-                indicator.className = "w-2 h-2 rounded-full bg-red-500";
-                text.className = "text-sm font-bold text-red-600";
-                modeInd.classList.remove('hidden');
-                modeInd.innerHTML = `Mode: <span class="text-red-600 font-bold">${isSystemOffline ? 'Offline (Gangguan)' : 'Pustaka Offline'}</span>`;
-                evalInfo.classList.remove('hidden');
-                evalInfo.innerText = isSystemOffline ? "Evaluasi tidak tersedia (Gangguan)" : "Evaluasi tidak tersedia (Kuota Habis)";
-            } else {
-                indicator.className = "w-2 h-2 rounded-full bg-green-500";
-                text.className = "text-sm font-bold text-navy";
-                modeInd.classList.remove('hidden');
-                modeInd.innerHTML = `Mode: <span class="text-green-600 font-bold">AI Online</span>`;
-                evalInfo.classList.add('hidden');
-            }
-        }
-
-        // --- VERCEL AI CALLER (SECURE) ---
-        // Sekarang memanggil backend Vercel dengan 'action' dan 'payload'
+        // --- VERCEL AI CALLER ---
         async function callGeminiVercel(action, payload = {}) {
             const response = await fetch('/api/chat', {
                 method: 'POST',
@@ -354,7 +224,7 @@
                 body: JSON.stringify({ action, payload })
             });
 
-            if (!response.ok) throw new Error("SERVER_ERROR");
+            if (!response.ok) throw new Error("Gagal terhubung ke server.");
             
             const data = await response.json();
             if (data.error) throw new Error(data.error);
@@ -374,61 +244,37 @@
             btn.disabled = true;
             loader.classList.remove('hidden');
             icon.classList.add('hidden');
+            btnText.innerText = "Meracik Ide...";
 
             try {
-                if (!isSystemOffline) await consumeQuota();
-
-                btnText.innerText = "Meracik Ide...";
-                
-                // Cukup kirim sinyal 'generate_challenge'
                 let resultText = await callGeminiVercel('generate_challenge');
                 
                 resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
                 currentChallenge = JSON.parse(resultText);
-                currentChallenge.is_offline = false;
+
+                document.getElementById('resGenre').innerText = currentChallenge.genre;
+                document.getElementById('resIdea').innerHTML = currentChallenge.ide_unik.replace(/\n/g, '<br>');
+                document.getElementById('resPremise').innerHTML = currentChallenge.premis.replace(/\n/g, '<br><br>');
+
+                document.getElementById('challengeCard').classList.remove('hidden');
+                document.getElementById('writingSection').classList.remove('hidden');
+                
+                setTimeout(() => document.getElementById('challengeCard').scrollIntoView({behavior: 'smooth', block: 'center'}), 100);
 
             } catch (error) {
-                console.warn("Switching to Offline Mode:", error);
-                
-                let msg = "Dialihkan ke Mode Offline.";
-                if (error.message === "QUOTA_EXCEEDED") msg = "Kuota harian habis. Mode Offline aktif.";
-                else isSystemOffline = true;
-
-                showModal("Info Sistem", msg);
-                updateQuotaUI();
-                
-                currentChallenge = {
-                    genre: offlineData.genres[Math.floor(Math.random() * offlineData.genres.length)],
-                    ide_unik: offlineData.ideas[Math.floor(Math.random() * offlineData.ideas.length)],
-                    premis: offlineData.premises[Math.floor(Math.random() * offlineData.premises.length)],
-                    is_offline: true
-                };
+                showModal("Gagal Membuat Tantangan", "Maaf, AI gagal merespons. Pastikan API key kamu sudah benar atau coba lagi beberapa saat.");
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btnText.innerText = "Buat Tantangan Baru";
+                loader.classList.add('hidden');
+                icon.classList.remove('hidden');
             }
-
-            // Merender ke UI dengan memecah \n menjadi baris baru (br)
-            document.getElementById('resGenre').innerText = currentChallenge.genre;
-            document.getElementById('resIdea').innerHTML = currentChallenge.ide_unik.replace(/\n/g, '<br>');
-            document.getElementById('resPremise').innerHTML = currentChallenge.premis.replace(/\n/g, '<br><br>');
-
-            document.getElementById('challengeCard').classList.remove('hidden');
-            document.getElementById('writingSection').classList.remove('hidden');
-            
-            setTimeout(() => document.getElementById('challengeCard').scrollIntoView({behavior: 'smooth', block: 'center'}), 100);
-
-            btn.disabled = false;
-            btnText.innerText = "Buat Tantangan Baru";
-            loader.classList.add('hidden');
-            icon.classList.remove('hidden');
         });
 
         // 2. Submit Story
         document.getElementById('submitBtn').addEventListener('click', async () => {
             if (!currentChallenge) return;
-            
-            if (currentGlobalUsage >= MAX_DAILY_QUOTA || isSystemOffline) {
-                showModal("Fitur Terbatas", "Evaluasi AI tidak tersedia saat ini. Silakan unduh cerpen Anda.");
-                return;
-            }
 
             const storyText = document.getElementById('storyInput').value;
             const btn = document.getElementById('submitBtn');
@@ -440,9 +286,6 @@
             loader.classList.remove('hidden');
 
             try {
-                await consumeQuota();
-
-                // Kirim sinyal 'evaluate_story' beserta isi cerita
                 const payload = { 
                     genre: currentChallenge.genre, 
                     premis: currentChallenge.premis, 
@@ -457,11 +300,11 @@
                 
                 setTimeout(() => {
                     document.getElementById('feedbackSection').scrollIntoView({behavior: 'smooth'});
-                    showModal("Selesai!", "Jangan lupa unduh karyamu sebelum keluar.");
+                    showModal("Selesai!", "Evaluasi berhasil! Jangan lupa unduh karyamu.");
                 }, 500);
 
             } catch (error) {
-                showModal("Gagal", "Gagal melakukan evaluasi AI. Coba lagi atau unduh saja.");
+                showModal("Gagal", "Gagal melakukan evaluasi AI. Silakan coba klik kirim lagi.");
                 console.error(error);
             } finally {
                 btn.disabled = false;
@@ -500,7 +343,6 @@
         // 4. Utils & Init
         lucide.createIcons();
         
-        // Modal Logic
         window.showModal = (title, msg) => {
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMessage').innerHTML = msg;
@@ -521,21 +363,14 @@
             wordCountDisplay.innerText = count;
             
             const isValid = count >= 700 && count <= 5000;
-            const isOnline = (currentGlobalUsage < MAX_DAILY_QUOTA) && !isSystemOffline;
 
             if (isValid) {
                 badge.className = "bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-mono";
                 warningText.innerText = "";
                 
-                if (isOnline) {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
-                    submitBtn.classList.add('bg-navy', 'text-white', 'hover:bg-opacity-90');
-                } else {
-                    submitBtn.disabled = true;
-                    warningText.innerText = "Mode Offline: Evaluasi AI tidak tersedia.";
-                    warningText.className = "px-4 pb-2 text-xs text-right text-mustard-dark h-6";
-                }
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-navy', 'text-white', 'hover:bg-opacity-90');
             } else {
                 submitBtn.disabled = true;
                 submitBtn.className = "bg-gray-300 text-gray-500 cursor-not-allowed px-6 py-2 rounded-lg font-bold flex items-center gap-2";
@@ -546,8 +381,6 @@
                 else warningText.innerText = `Kelebihan ${count - 5000} kata.`;
             }
         });
-
-        initQuotaListener();
     </script>
 </body>
 </html>
