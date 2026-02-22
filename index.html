@@ -228,7 +228,7 @@
         import { getFirestore, doc, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
-        // --- KONFIGURASI FIREBASE (AMAN DI EXPOSE KARENA DILINDUNGI RULES) ---
+        // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyCuhmevYBaj2VvZXEjGFeYe_DY2QmdopHc",
             authDomain: "goresanaksara-1a234.firebaseapp.com",
@@ -288,7 +288,7 @@
         }
 
         async function consumeQuota() {
-            if (isSystemOffline) return true; // Bypass jika offline (nanti pakai data offline)
+            if (isSystemOffline) return true; 
             
             const docRef = doc(db, "daily_limits", "global");
             const today = new Date().toDateString();
@@ -346,12 +346,12 @@
         }
 
         // --- VERCEL AI CALLER (SECURE) ---
-        async function callGeminiVercel(promptText) {
-            // Kita panggil backend Vercel kita sendiri, BUKAN Google langsung
+        // Sekarang memanggil backend Vercel dengan 'action' dan 'payload'
+        async function callGeminiVercel(action, payload = {}) {
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: promptText })
+                body: JSON.stringify({ action, payload })
             });
 
             if (!response.ok) throw new Error("SERVER_ERROR");
@@ -376,21 +376,13 @@
             icon.classList.add('hidden');
 
             try {
-                // Cek kuota dulu
                 if (!isSystemOffline) await consumeQuota();
 
                 btnText.innerText = "Meracik Ide...";
                 
-                const prompt = `
-                    Buatkan tantangan cerpen Bahasa Indonesia format JSON murni:
-                    { "genre": "...", "ide_unik": "...", "premis": "..." }
-                    Genre harus kreatif/unik. Jangan pakai markdown.
-                `;
-
-                // Panggil Vercel API
-                let resultText = await callGeminiVercel(prompt);
+                // Cukup kirim sinyal 'generate_challenge'
+                let resultText = await callGeminiVercel('generate_challenge');
                 
-                // Bersihkan Markdown jika AI bandel
                 resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
                 currentChallenge = JSON.parse(resultText);
                 currentChallenge.is_offline = false;
@@ -405,7 +397,6 @@
                 showModal("Info Sistem", msg);
                 updateQuotaUI();
                 
-                // Fallback ke data offline
                 currentChallenge = {
                     genre: offlineData.genres[Math.floor(Math.random() * offlineData.genres.length)],
                     ide_unik: offlineData.ideas[Math.floor(Math.random() * offlineData.ideas.length)],
@@ -414,10 +405,10 @@
                 };
             }
 
-            // Render UI
+            // Merender ke UI dengan memecah \n menjadi baris baru (br)
             document.getElementById('resGenre').innerText = currentChallenge.genre;
-            document.getElementById('resIdea').innerText = currentChallenge.ide_unik;
-            document.getElementById('resPremise').innerText = currentChallenge.premis;
+            document.getElementById('resIdea').innerHTML = currentChallenge.ide_unik.replace(/\n/g, '<br>');
+            document.getElementById('resPremise').innerHTML = currentChallenge.premis.replace(/\n/g, '<br><br>');
 
             document.getElementById('challengeCard').classList.remove('hidden');
             document.getElementById('writingSection').classList.remove('hidden');
@@ -440,7 +431,6 @@
             }
 
             const storyText = document.getElementById('storyInput').value;
-            const wordCount = document.getElementById('wordCount').innerText;
             const btn = document.getElementById('submitBtn');
             const btnText = document.getElementById('subBtnText');
             const loader = document.getElementById('subBtnLoader');
@@ -452,15 +442,14 @@
             try {
                 await consumeQuota();
 
-                const prompt = `
-                    Bertindak sebagai editor fiksi. Berikan feedback cerpen ini.
-                    Genre: ${currentChallenge.genre}
-                    Premis: ${currentChallenge.premis}
-                    Cerita: "${storyText.substring(0, 10000)}"
-                    Berikan output dalam format Markdown yang rapi.
-                `;
-
-                const feedback = await callGeminiVercel(prompt);
+                // Kirim sinyal 'evaluate_story' beserta isi cerita
+                const payload = { 
+                    genre: currentChallenge.genre, 
+                    premis: currentChallenge.premis, 
+                    story: storyText.substring(0, 10000) 
+                };
+                const feedback = await callGeminiVercel('evaluate_story', payload);
+                
                 lastFeedbackMarkdown = feedback;
                 
                 document.getElementById('aiFeedbackContent').innerHTML = marked.parse(feedback);
